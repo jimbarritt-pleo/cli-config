@@ -1,0 +1,28 @@
+#!/bin/bash
+# ...existing code...
+
+remote_url=$(git config --get remote.origin.url)
+branch=$(git rev-parse --abbrev-ref HEAD)
+repo_root=$(git rev-parse --show-toplevel)
+current_dir=$(pwd)
+
+relative_path=$(python3 -c "import os.path; print(os.path.relpath('$current_dir', '$repo_root'))")
+
+if [[ $remote_url == git@* ]]; then
+  remote_url="https://${remote_url#git@}"
+  remote_url="${remote_url/.git/}"
+  # Keep the first colon, replace all subsequent colons with slashes
+  remote_url=$(echo "$remote_url" | sed 's/\(:[^:]*\):/\1\//g')
+elif [[ $remote_url == https://* ]]; then
+  remote_url=${remote_url/.git/}
+fi
+
+if [[ -z "$relative_path" || "$relative_path" == "." ]]; then
+  url="$remote_url/tree/$branch"
+else
+  url="$remote_url/tree/$branch/$relative_path"
+fi
+
+echo "Opening GitHub URL: $url"
+open "$url"
+
