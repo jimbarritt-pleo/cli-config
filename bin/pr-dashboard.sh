@@ -7,7 +7,15 @@ set -e
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/../conf/repos.list"
+DEFAULT_CONFIG_FILE="$SCRIPT_DIR/../conf/repos.list"
+USER_CONFIG_FILE="$HOME/.pr-dashboard-config"
+
+# Use user config if it exists, otherwise use default
+if [[ -f "$USER_CONFIG_FILE" ]]; then
+    CONFIG_FILE="$USER_CONFIG_FILE"
+else
+    CONFIG_FILE="$DEFAULT_CONFIG_FILE"
+fi
 
 # Function to show help text
 show_help() {
@@ -29,9 +37,17 @@ show_help() {
     echo "   (Follow the prompts and use your personal access token, or authenticate with the browser)"
     echo ""
     echo "Configuration:"
-    echo "- Add repository URLs to: $CONFIG_FILE"
-    echo "- One GitHub repository URL per line"
-    echo "- Example: https://github.com/owner/repository"
+    echo "- Default config file: $DEFAULT_CONFIG_FILE"
+    echo "- User override config: $USER_CONFIG_FILE (optional)"
+    echo "- Currently using: $CONFIG_FILE"
+    echo ""
+    echo "To create your own repository list:"
+    echo "1. Copy the default config file:"
+    echo "   cp $DEFAULT_CONFIG_FILE $USER_CONFIG_FILE"
+    echo "2. Edit your personal config:"
+    echo "   nvim $USER_CONFIG_FILE"
+    echo "3. Add one GitHub repository URL per line"
+    echo "   Example: https://github.com/owner/repository"
     echo ""
     echo "Usage:"
     echo "  ./bin/pr-dashboard.sh"
