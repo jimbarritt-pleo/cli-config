@@ -9,10 +9,46 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/../conf/repos.list"
 
+# Function to show help text
+show_help() {
+    echo "PR Dashboard - GitHub CLI Tool for Open Pull Requests"
+    echo "====================================================="
+    echo ""
+    echo "This script fetches and displays open pull requests for configured repositories."
+    echo ""
+    echo "Prerequisites:"
+    echo "1. Install GitHub CLI:"
+    echo "   brew install gh"
+    echo ""
+    echo "2. Create a GitHub Personal Access Token:"
+    echo "   - Go to https://github.com/settings/tokens"
+    echo "   - Generate a new token with 'repo' permissions"
+    echo ""
+    echo "3. Authenticate with GitHub CLI:"
+    echo "   gh auth login"
+    echo "   (Follow the prompts and use your personal access token, or authenticate with the browser)"
+    echo ""
+    echo "Configuration:"
+    echo "- Add repository URLs to: $CONFIG_FILE"
+    echo "- One GitHub repository URL per line"
+    echo "- Example: https://github.com/owner/repository"
+    echo ""
+    echo "Usage:"
+    echo "  ./bin/pr-dashboard.sh"
+    echo ""
+}
+
+# Check if help is requested
+if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
+    show_help
+    exit 0
+fi
+
 # Check if GitHub CLI is installed
 if ! command -v gh &> /dev/null; then
-    echo "Error: GitHub CLI (gh) is not installed or not in PATH"
-    echo "Please install it from: https://cli.github.com/"
+    echo "❌ GitHub CLI (gh) is not installed!"
+    echo ""
+    show_help
     exit 1
 fi
 
@@ -25,8 +61,10 @@ fi
 
 # Check if user is authenticated with GitHub CLI
 if ! gh auth status &> /dev/null; then
-    echo "Error: Not authenticated with GitHub CLI"
+    echo "❌ Not authenticated with GitHub CLI!"
+    echo ""
     echo "Please run: gh auth login"
+    echo "If you need help with authentication, run: $0 --help"
     exit 1
 fi
 
