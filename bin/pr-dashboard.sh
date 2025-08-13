@@ -46,18 +46,15 @@ while IFS= read -r repo_url; do
         repo_name="$repo"  # Use the repo part as the display name
 
         echo ""
-        echo "📁 Repository: $repo_name ($repo_identifier)"
-        echo "   URL: $repo_url"
-        echo "   ----------------------------------------"
 
         # Fetch open PRs using GitHub CLI
-        prs=$(gh pr list --repo "$repo_identifier" --state open --json number,title,author,createdAt,url --template '{{range .}}#{{.number}} - {{.title}} (by @{{.author.login}}, {{timeago .createdAt}})
-{{.url}}
+        prs=$(gh pr list --repo "$repo_identifier" --state open --json number,title,author,createdAt,url --template '{{range .}}{{printf "%-15s %-12s #%-5.0f %-50s %s" .author.login (timeago .createdAt) .number .title .url}}
 {{end}}')
 
         if [[ -z "$prs" ]]; then
-            echo "   ✅ No open PRs"
+            echo "📁 Repository: $repo_name ($repo_identifier) - $repo_url ✅ - no open PRs"
         else
+            echo "📁 Repository: $repo_name ($repo_identifier) - $repo_url"
             echo "$prs" | sed 's/^/   /'
         fi
     else
