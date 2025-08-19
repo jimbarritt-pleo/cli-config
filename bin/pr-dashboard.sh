@@ -102,7 +102,7 @@ while IFS= read -r repo_url; do
         echo ""
 
         # Fetch open PRs using GitHub CLI
-        prs=$(gh pr list --repo "$repo_identifier" --state open --json number,title,author,createdAt,url,reviewRequests --template '{{range .}}{{$reviewers := ""}}{{range .reviewRequests}}{{$name := ""}}{{if .login}}{{$name = .login}}{{else if .name}}{{$name = .name}}{{end}}{{if ne $name "pleo-bot-auto-approver"}}{{if $reviewers}}{{$reviewers = printf "%s," $reviewers}}{{end}}{{$reviewers = printf "%s%s" $reviewers $name}}{{end}}{{end}}{{if $reviewers}}{{$reviewers = printf "\033[32m[%s]\033[0m" $reviewers}}{{end}}{{printf "%-15s %-12s #%-5.0f %-40s %-30s %s" .author.login (timeago .createdAt) .number .title $reviewers .url}}
+        prs=$(gh pr list --repo "$repo_identifier" --state open --json number,title,author,createdAt,url,reviewRequests,headRefName --template '{{range .}}{{$reviewers := ""}}{{range .reviewRequests}}{{$name := ""}}{{if .login}}{{$name = .login}}{{else if .name}}{{$name = .name}}{{else if .slug}}{{$name = .slug}}{{end}}{{if and $name (ne $name "pleo-bot-auto-approver")}}{{if $reviewers}}{{$reviewers = printf "%s," $reviewers}}{{end}}{{$reviewers = printf "%s%s" $reviewers $name}}{{end}}{{end}}{{if $reviewers}}{{$reviewers = printf "\033[32m[%s]\033[0m" $reviewers}}{{end}}{{printf "%-15s %-12s #%-5.0f %-60s %-30s %s \033[36m[%s]\033[0m" .author.login (timeago .createdAt) .number .title $reviewers .url .headRefName}}
 {{end}}')
 
         if [[ -z "$prs" ]]; then
